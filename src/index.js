@@ -56,7 +56,7 @@ class Service {
     if (filters.$match) {
       var key = Object.keys(filters.$match)[0];
       var value = filters.$match[key];        
-      query = query.filter(function(node) { return node(`${key}`).match(`^.*?${value}.*$`)});      
+      query = query.filter(function(node) { return node(`${key}`).match(`^.*?${value}.*$`); });      
     }
     
 
