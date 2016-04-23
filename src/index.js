@@ -1,5 +1,5 @@
 import Proto from 'uberproto';
-import filter from '../../feathers-query-filters';
+import filter from 'feathers-query-filters';
 import { types as errors }
 from 'feathers-errors';
 import parseQuery from './parse';
