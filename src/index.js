@@ -1,5 +1,5 @@
 import Proto from 'uberproto';
-import filter from 'feathers-query-filters';
+import filter from '../../feathers-query-filters';
 import { types as errors }
 from 'feathers-errors';
 import parseQuery from './parse';
@@ -52,6 +52,13 @@ class Service {
     if (filters.$select) {
       query = query.pluck(filters.$select);
     }
+    
+    if (filters.$match) {
+      var key = Object.keys(filters.$match)[0];
+      var value = filters.$match[key];        
+      query = query.filter(function(node) { return node(`${key}`).match(`^.*?${value}.*$`)});      
+    }
+    
 
     // Handle $sort
     if (filters.$sort) {
