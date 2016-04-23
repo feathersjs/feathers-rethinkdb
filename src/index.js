@@ -193,7 +193,6 @@ class Service {
       } else {
         query = this.table.get(id);
       }
-
       return query.update(data, {
         returnChanges: true
       }).run().then(response => {
@@ -206,12 +205,11 @@ class Service {
   update(id, data) {
     return this._get(id).then(getData => {
       data.id = id;
-
       return this.table.get(getData.id)
         .replace(data, {
           returnChanges: true
         }).run()
-        .then(result => result.changes[0].new_val);
+        .then(result => (result.changes && result.changes.length) ? result.changes[0].new_val : {});
     });
   }
 
@@ -246,7 +244,6 @@ class Service {
         if (error || typeof this.emit !== 'function') {
           return;
         }
-
         if (data.old_val === null) {
           this.emit('created', data.new_val);
         } else if (data.new_val === null) {
