@@ -37,6 +37,12 @@ export default function parseQuery(service, reQuery, params) {
             return doc(qField).match(qValue.$regexp);
           }); 
           break;
+        case '$contains':
+          isFilter = true;
+          reQuery = reQuery.filter(function (doc) {
+            return doc(qField).contains(qValue.$contains);
+          });
+          break;
         case '$lt':
           subQuery = r.row(qField).lt(params[qField].$lt);
           break;
