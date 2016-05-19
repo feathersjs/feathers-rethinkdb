@@ -170,7 +170,7 @@ class Service {
   create(data) {
     return this.table.insert(data).run()
       .then(res => Object.assign({
-        id: res.generated_keys[0]
+        id: (data.id ? data.id : res.generated_keys[0])
       }, data));
   }
 
