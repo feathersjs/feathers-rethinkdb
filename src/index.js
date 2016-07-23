@@ -1,7 +1,7 @@
 import Proto from 'uberproto';
 import filter from 'feathers-query-filters';
-import { types as errors }
-from 'feathers-errors';
+import errors from 'feathers-errors';
+import omit from 'lodash.omit';
 import parseQuery from './parse';
 
 // Create the service.
@@ -39,27 +39,27 @@ class Service {
   }
 
   _find(params = {}) {
+    const paginate = typeof params.paginate !== 'undefined' ?
+      params.paginate : this.paginate;
+
     let r = this.options.r;
-
-    params.query = params.query || {};
-
     // Start with finding all, and limit when necessary.
-    let query = this.table.filter({});
+    let q = this.table.filter({});
     // Prepare the special query params.
-    let filters = filter(params.query, this.paginate);
+    let { filters, query } = filter(params.query || {}, paginate);
 
     // Handle $select
     if (filters.$select) {
-      query = query.pluck(filters.$select);
+      q = q.pluck(filters.$select);
     }
 
     // Handle $sort
     if (filters.$sort) {
       let fieldName = Object.keys(filters.$sort)[0];
       if (filters.$sort[fieldName] === 1) {
-        query = query.orderBy(fieldName);
+        q = q.orderBy(fieldName);
       } else {
-        query = query.orderBy(r.desc(fieldName));
+        q = q.orderBy(r.desc(fieldName));
       }
     }
 
@@ -67,13 +67,13 @@ class Service {
     // TODO (@marshallswain): Handle $or queries with nested specials.
     // Right now they won't work and we'd need to start diving
     // into nested where conditions.
-    if (params.query.$or) {
+    if (query.$or) {
       // orQuery will be built and passed to row('rowName').filter().
       let orQuery;
       // params.query.$or looks like [ { name: 'Alice' }, { name: 'Bob' } ]
       // Needs to become:
       // r.row("name").eq('Alice').or(r.row("name").eq('Bob'))
-      params.query.$or.forEach((queryObject, i) => {
+      query.$or.forEach((queryObject, i) => {
         // queryObject looks like { name: 'Alice' }
         let keys = Object.keys(queryObject);
 
@@ -97,30 +97,30 @@ class Service {
         });
       });
 
-      query = query.filter(orQuery);
-      delete params.query.$or;
+      q = q.filter(orQuery);
+      query = omit(query, '$or');
     }
-    query = parseQuery(this, query, params.query);
+    q = parseQuery(this, q, query);
 
     let countQuery;
 
     // For pagination, count has to run as a separate query, but without limit.
-    if (this.paginate.default) {
-      countQuery = query.count().run();
+    if (paginate.default) {
+      countQuery = q.count().run();
     }
 
     // Handle $skip AFTER the count query but BEFORE $limit.
     if (filters.$skip) {
-      query = query.skip(filters.$skip);
+      q = q.skip(filters.$skip);
     }
     // Handle $limit AFTER the count query and $skip.
     if (filters.$limit) {
-      query = query.limit(filters.$limit);
+      q = q.limit(filters.$limit);
     }
 
     // Execute the query
-    return Promise.all([query, countQuery]).then(([data, total]) => {
-      if (this.paginate.default) {
+    return Promise.all([q, countQuery]).then(([data, total]) => {
+      if (paginate.default) {
         return {
           total,
           data,

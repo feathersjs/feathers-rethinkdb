@@ -18,7 +18,8 @@ const expect = chai.expect;
 const _ids = {};
 const app = feathers().use('/people', service({
   Model: r,
-  name: 'people'
+  name: 'people',
+  watch: true
 }).extend({
   _find(params) {
     params = params || {};
@@ -33,8 +34,7 @@ const app = feathers().use('/people', service({
   },
 
   create(data, params) {
-    data.counter = ++counter;
-    return this._super(data, params);
+    return this._super(Object.assign({}, data, {counter: ++counter }), params);
   }
 }));
 const people = app.service('people');
