@@ -106,7 +106,7 @@ describe('feathers-rethinkdb', () => {
       });
   });
 
-  afterEach(done => people.remove(null).then(() => done()).catch(done));
+  afterEach(() => people.remove(null));
 
   it('is CommonJS compatible', () => {
     expect(typeof require('../lib')).to.equal('function');
