@@ -172,13 +172,25 @@ class Service {
     return this.table.insert(data).run().then(function (res) {
       if (data[idField]) {
         if (res.errors) {
-          return Promise.reject(new errors.Conflict('Duplicate primary key'));
+          return Promise.reject(new errors.Conflict('Duplicate primary key', res.errors));
         }
         return data;
       } else { // add generated id
-        const result = Object.assign({}, data);
-        result[idField] = res.generated_keys[0];
-        return result;
+        const addId = (current, index) => {
+          if(res.generated_keys && res.generated_keys[index]){
+            return Object.assign({}, current, {
+              [idField]: res.generated_keys[index]
+            });
+          }
+
+          return current;
+        };
+
+        if(Array.isArray(data)) {
+          return data.map(addId);
+        }
+
+        return addId(data, 0);
       }
     });
   }

@@ -34,7 +34,17 @@ const app = feathers().use('/people', service({
   },
 
   create(data, params) {
-    return this._super(Object.assign({}, data, {counter: ++counter }), params);
+    const addCount = current => Object.assign({}, current, {
+      counter: ++counter
+    });
+
+    if(Array.isArray(data)) {
+      data = data.map(addCount);
+    } else {
+      data = addCount(data);
+    }
+
+    return this._super(data, params);
   }
 }));
 const people = app.service('people');
@@ -160,6 +170,17 @@ describe('feathers-rethinkdb', () => {
         name: 'Marshall Thompson',
         counter: ++counter
       }).run();
+    });
+  });
+
+  describe('array creates', function() {
+    it('create works with an array', function(done) {
+      people.create([ { name: 'Test 1' }, { name: 'Test 2' }])
+        .then(data => {
+          expect(typeof data[0].id).to.not.equal('undefined');
+          expect(typeof data[1].id).to.not.equal('undefined');
+          done();
+        });
     });
   });
 
