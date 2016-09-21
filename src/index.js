@@ -100,6 +100,33 @@ class Service {
       q = q.filter(orQuery);
       query = omit(query, '$or');
     }
+
+    if (query.$and) {
+      let andQuery = void 0;
+
+      query.$and.forEach((queryObject, i) => {
+        let keys = Object.keys(queryObject);
+
+        keys.forEach(qField => {
+          let qValue = queryObject[qField];
+          let subQuery = void 0;
+          let rFieldOp = /^\$[a-z]{2}/;
+          let operation = null;
+
+          if ((typeof qValue === 'undefined' ? 'undefined' : _typeof(qValue)) !== 'object') {
+            operation = rFieldOp.test(qField) ? qField.slice(1) : 'eq';
+            subQuery = r.row(qField)[operation](qValue);
+          }
+
+          if (i === 0) {
+            andQuery = subQuery;
+          } else {
+            andQuery = andQuery.and(subQuery);
+          }
+        });
+      });
+    }
+
     q = parseQuery(this, q, query);
 
     let countQuery;
