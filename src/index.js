@@ -113,7 +113,7 @@ class Service {
           let rFieldOp = /^\$[a-z]{2}/;
           let operation = null;
 
-          if ((typeof qValue === 'undefined' ? 'undefined' : _typeof(qValue)) !== 'object') {
+          if ((typeof qValue === 'undefined' ? 'undefined' : typeof(qValue)) !== 'object') {
             operation = rFieldOp.test(qField) ? qField.slice(1) : 'eq';
             subQuery = r.row(qField)[operation](qValue);
           }
