@@ -125,6 +125,9 @@ class Service {
           }
         });
       });
+
+      q = q.filter(andQuery);
+      query = omit(query, '$and');
     }
 
     q = parseQuery(this, q, query);
