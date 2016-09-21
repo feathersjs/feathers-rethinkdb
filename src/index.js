@@ -100,7 +100,6 @@ class Service {
       q = q.filter(orQuery);
       query = omit(query, '$or');
     }
-
     if (query.$and) {
       let andQuery = void 0;
 
