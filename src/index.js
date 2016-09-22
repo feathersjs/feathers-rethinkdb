@@ -115,7 +115,7 @@ class Service {
             let op = void 0;
 
             if ((typeof qValue === u ? u : typeof(qValue)) !== 'object') {
-              operation = qField[0] === '$' ? qField.slice(1) : 'eq';
+              op = qField[0] === '$' ? qField.slice(1) : 'eq';
               subQuery = r.row(qField)[op](qValue);
             }
 
