@@ -103,6 +103,7 @@ class Service {
     if (query.$and) {
       (function () {
         let andQuery = void 0;
+        let _typeof = typeof.bind(this);
 
         query.$and.forEach((queryObject, i) => {
           let keys = Object.keys(queryObject);
@@ -113,7 +114,7 @@ class Service {
             let rFieldOp = /^\$[a-z]{2}/;
             let operation = null;
 
-            if ((typeof qValue === 'undefined' ? 'undefined' : typeof(qValue)) !== 'object') {
+            if ((typeof qValue === 'undefined' ? 'undefined' : _typeof(qValue)) !== 'object') {
               operation = rFieldOp.test(qField) ? qField.slice(1) : 'eq';
               subQuery = r.row(qField)[operation](qValue);
             }
