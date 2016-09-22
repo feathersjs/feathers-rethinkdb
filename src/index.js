@@ -103,20 +103,20 @@ class Service {
 
     if (query.$and) {
       (function () {
-        let andQuery = void 0;
+        let andQuery;
 
         query.$and.forEach((queryObject, i) => {
           let keys = Object.keys(queryObject);
 
           keys.forEach(qField => {
+            let u = 'undefined';
             let qValue = queryObject[qField];
             let subQuery = void 0;
-            let rFieldOp = /^\$[a-z]{2}/;
-            let operation = null;
+            let op = void 0;
 
-            if ((typeof qValue === 'undefined' ? 'undefined' : typeof(qValue)) !== 'object') {
-              operation = rFieldOp.test(qField) ? qField.slice(1) : 'eq';
-              subQuery = r.row(qField)[operation](qValue);
+            if ((typeof qValue === u ? u : typeof(qValue)) !== 'object') {
+              operation = qField[0] === '$' ? qField.slice(1) : 'eq';
+              subQuery = r.row(qField)[op](qValue);
             }
 
             if (i === 0) {
