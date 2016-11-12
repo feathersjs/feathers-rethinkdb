@@ -99,6 +99,38 @@ class Service {
       q = q.filter(orQuery);
       query = omit(query, '$or');
     }
+
+    if (query.$and) {
+      (function () {
+        let andQuery;
+
+        query.$and.forEach((queryObject, i) => {
+          let keys = Object.keys(queryObject);
+
+          keys.forEach(qField => {
+            let u = 'undefined';
+            let qValue = queryObject[qField];
+            let subQuery = void 0;
+            let op = void 0;
+
+            if ((typeof qValue === u ? u : typeof(qValue)) !== 'object') {
+              op = qField[0] === '$' ? qField.slice(1) : 'eq';
+              subQuery = r.row(qField)[op](qValue);
+            }
+
+            if (i === 0) {
+              andQuery = subQuery;
+            } else {
+              andQuery = andQuery.and(subQuery);
+            }
+          });
+        });
+
+        q = q.filter(andQuery);
+        query = omit(query, '$and');
+      })();
+    }
+
     q = parseQuery(this, q, query);
 
     let countQuery;
