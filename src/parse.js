@@ -19,6 +19,14 @@ export default function parseQuery (service, reQuery, params) {
          *  becomes
          *  r.expr(['Alice', 'Bob']).contains(doc['name'])
          */
+        case '$btwn':
+          isFilter = true;
+		      reQuery = reQuery.filter(r.row(qField).ge(qValue.$btwn[0])).filter(r.row(qField).le(qValue.$btwn[1]));
+          break;
+        case '$nbtwn':
+          isFilter = true;
+		      reQuery = reQuery.filter(r.row(qField).lt(qValue.$nbtwn[0]).or(r.row(qField).gt(qValue.$nbtwn[1])));
+          break;
         case '$in':
           isFilter = true;
           reQuery = reQuery.filter(function (doc) {
