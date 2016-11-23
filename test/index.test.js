@@ -184,6 +184,25 @@ describe('feathers-rethinkdb', () => {
     });
   });
 
+  describe('Special operators', function() {
+    it('$search operand success', () => {
+      const params = { query: {name: {$search: 'g$'}}};
+      return app.service('people').find(params).then(function(records){
+        // Check the results. ..
+        expect(records.length).to.equal(1);
+        expect(records[0].name).to.equal('Doug');
+      });
+    });
+
+    it('$search operand fail', () => {
+      const params = { query: {name: {$search: '^R'}}};
+      return app.service('people').find(params).then(function(records){
+        // Check the results. ..
+        expect(records.length).to.equal(0);
+      });
+    });
+  });
+
   base(people, _ids, errors.types);
 });
 
