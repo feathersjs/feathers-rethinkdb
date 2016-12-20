@@ -15,6 +15,7 @@ const mappings = {
 export function createFilter (query, r) {
   return function (doc) {
     const or = query.$or;
+    const and = query.$and;
     let matcher = r({});
 
     // Handle $or. If it exists, use the first $or entry as the base matcher
@@ -23,6 +24,13 @@ export function createFilter (query, r) {
 
       for (let i = 0; i < or.length; i++) {
         matcher = matcher.or(createFilter(or[i], r)(doc));
+      }
+    // Handle $and
+    } else if (Array.isArray(and)) {
+      matcher = createFilter(and[0], r)(doc);
+
+      for (let i = 0; i < and.length; i++) {
+        matcher = matcher.and(createFilter(and[i], r)(doc));
       }
     }
 
