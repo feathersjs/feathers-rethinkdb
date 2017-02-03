@@ -213,7 +213,7 @@ class Service {
   }
 
   update (id, data, params) {
-    return this._get(id).then(getData => {
+    return this._get(id, params).then(getData => {
       data[this.id] = id;
       return this.table.get(getData[this.id])
         .replace(data, {
