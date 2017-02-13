@@ -156,7 +156,9 @@ class Service {
 
   create (data, params) {
     const idField = this.id;
-    return this.table.insert(data).run().then(res => {
+    return this.table.insert(data, {
+        conflict: 'update'
+      }).run().then(res => {
       if (data[idField]) {
         if (res.errors) {
           return Promise.reject(new errors.Conflict('Duplicate primary key', res.errors));
