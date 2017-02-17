@@ -156,9 +156,7 @@ class Service {
 
   create (data, params) {
     const idField = this.id;
-    return this.table.insert(data, {
-        conflict: 'update'
-      }).run().then(res => {
+    return this.table.insert(data, params.rethinkdb).run().then(res => {
       if (data[idField]) {
         if (res.errors) {
           return Promise.reject(new errors.Conflict('Duplicate primary key', res.errors));
@@ -198,6 +196,7 @@ class Service {
     // Find the original record(s), first, then patch them.
     return query.then(getData => {
       let query;
+      let options = Object.assign({ returnChanges: true }, params.rethinkdb);
 
       if (Array.isArray(getData)) {
         query = this.table.getAll(...getData.map(item => item[this.id]));
@@ -205,9 +204,7 @@ class Service {
         query = this.table.get(id);
       }
 
-      return query.update(data, {
-        returnChanges: true
-      }).run().then(response => {
+      return query.update(data, options).run().then(response => {
         let changes = response.changes.map(change => change.new_val);
         return changes.length === 1 ? changes[0] : changes;
       });
@@ -215,6 +212,8 @@ class Service {
   }
 
   update (id, data, params) {
+    let options = Object.assign({ returnChanges: true }, params.rethinkdb);
+
     if (Array.isArray(data) || id === null) {
       return Promise.reject('Not replacing multiple records. Did you mean `patch`?');
     }
@@ -222,9 +221,7 @@ class Service {
     return this._get(id, params).then(getData => {
       data[this.id] = id;
       return this.table.get(getData[this.id])
-        .replace(data, {
-          returnChanges: true
-        }).run().then(result =>
+        .replace(data, options).run().then(result =>
           (result.changes && result.changes.length) ? result.changes[0].new_val : data
         );
     }).then(select(params, this.id));
@@ -232,6 +229,7 @@ class Service {
 
   remove (id, params) {
     let query;
+    let options = Object.assign({ returnChanges: true }, params.rethinkdb);
 
     // You have to pass id=null to remove all records.
     if (id !== null && id !== undefined) {
@@ -242,9 +240,7 @@ class Service {
       return Promise.reject(new Error('You must pass either an id or params to remove.'));
     }
 
-    return query.delete({
-      returnChanges: true
-    })
+    return query.delete(options)
       .run()
       .then(res => {
         if (res.changes && res.changes.length) {
