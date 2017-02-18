@@ -140,13 +140,23 @@ describe('feathers-rethinkdb', () => {
     });
   });
 
-  describe('array creates', () => {
+  describe('creates', () => {
     it('create works with an array', () => {
       return people.create([{name: 'Test 1'}, {name: 'Test 2'}])
         .then(data => {
           expect(typeof data[0].id).to.not.equal('undefined');
           expect(typeof data[1].id).to.not.equal('undefined');
         });
+    });
+
+    it('create allows upsert with params.rethinkdb options', () => {
+      people.create({ name: 'Testing upser' }).then(result => {
+        const rethinkdb = { conflict: 'update' };
+
+        result.name = 'Testing upsert';
+
+        return people.create(result, { rethinkdb });
+      }).then(result => expect(result.name).to.equal('Testing upsert'));
     });
   });
 
