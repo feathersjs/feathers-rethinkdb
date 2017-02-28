@@ -19,9 +19,13 @@ class Service {
       throw new Error('You must provide the RethinkDB object on options.Model');
     }
 
-    // Make sure the user connected a database before creating the service.
     if (!options.r._poolMaster._options.db) {
-      throw new Error('You must provide either an instance of r that is preconfigured with a db, or a provide options.db.');
+      throw new Error('You must provide an instance of r that is preconfigured with a db. You can override the db for the current query by specifying db: in service options');
+    }
+
+    // if no options.db on service use default from pool master
+    if(!options.db) {
+      options.db = options.r._poolMaster._options.db;
     }
 
     if (!options.name) {
@@ -30,7 +34,7 @@ class Service {
 
     this.type = 'rethinkdb';
     this.id = options.id || 'id';
-    this.table = options.r.table(options.name);
+    this.table = options.r.db(options.db).table(options.name);
     this.options = options;
     this.watch = options.watch !== undefined ? options.watch : true;
     this.paginate = options.paginate || {};
@@ -44,7 +48,7 @@ class Service {
   init (opts = {}) {
     let r = this.options.r;
     let t = this.options.name;
-    let db = this.options.r._poolMaster._options.db;
+    let db = this.options.db;
 
     return r.dbList().contains(db) // create db if not exists
       .do(dbExists => r.branch(dbExists, {created: 0}, r.dbCreate(db)))
