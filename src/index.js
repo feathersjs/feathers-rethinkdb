@@ -56,7 +56,7 @@ class Service {
         return r.db(db).tableList().contains(t) // create table if not exists
           .do(tableExists => r.branch(
             tableExists, {created: 0},
-            r.tableCreate(t, opts))
+            r.db(db).tableCreate(t, opts))
           ).run();
       });
   }
