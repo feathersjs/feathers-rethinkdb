@@ -2,6 +2,8 @@ import chai from 'chai';
 import { base, example } from 'feathers-service-tests';
 import feathers from 'feathers';
 import errors from 'feathers-errors';
+import hooks from 'feathers-hooks';
+
 import rethink from 'rethinkdbdash';
 import service from '../src';
 
@@ -43,6 +45,7 @@ const numberService = {
 };
 
 const app = feathers()
+  .configure(hooks())
   .use('/people', service({
     Model: r,
     name: 'people',
@@ -87,6 +90,41 @@ describe('feathers-rethinkdb', () => {
 
   it('basic functionality', () => {
     expect(typeof 1).to.equal('number');
+  });
+
+  it.only('after hooks run and get send with events', done => {
+    const name = 'Hooks tester';
+    const service = app.service('people');
+
+    service.hooks({
+      after (hook) {
+        if (hook.params.runHooks) {
+          hook.result.test = 'testing';
+        }
+      }
+    });
+
+    service.once('created', person => {
+      try {
+        expect(person.test).to.equal('testing', 'Hook property got set');
+      } catch (e) {
+        done(e);
+      }
+    });
+
+    service.once('removed', person => {
+      try {
+        expect(person.test).to.equal('testing', 'Hook property got set');
+        done();
+      } catch (e) {
+        done(e);
+      }
+    });
+
+    service.create({
+      name,
+      age: 1
+    }, { runHooks: true }).then(person => service.remove(person.id));
   });
 
   describe('common tests', () => {

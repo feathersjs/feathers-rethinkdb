@@ -24,7 +24,7 @@ class Service {
     }
 
     // if no options.db on service use default from pool master
-    if(!options.db) {
+    if (!options.db) {
       options.db = options.r._poolMaster._options.db;
     }
 
