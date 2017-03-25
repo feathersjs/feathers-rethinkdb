@@ -1,7 +1,8 @@
 import Proto from 'uberproto';
 import filter from 'feathers-query-filters';
 import errors from 'feathers-errors';
-import { _, select } from 'feathers-commons';
+import { _, select, hooks } from 'feathers-commons';
+import { processHooks, getHooks } from 'feathers-hooks/lib/commons';
 import { createFilter } from './parse';
 
 const BASE_EVENTS = ['created', 'updated', 'patched', 'removed'];
@@ -256,26 +257,78 @@ class Service {
       }).then(select(params, this.id));
   }
 
-  setup () {
-    if (this.watch) {
-      this._cursor = this.table.changes().run().then(cursor => {
-        cursor.each((error, data) => {
-          if (error || typeof this.emit !== 'function') {
-            return;
-          }
-          if (data.old_val === null) {
-            this.emit('created', data.new_val);
-          } else if (data.new_val === null) {
-            this.emit('removed', data.old_val);
-          } else {
-            this.emit('updated', data.new_val);
-            this.emit('patched', data.new_val);
-          }
-        });
-
-        return cursor;
-      });
+  watchChangefeeds (app) {
+    if (!this.watch || this._cursor) {
+      return this._cursor;
     }
+
+    let runHooks = (method, data) => Promise.resolve({
+      result: data
+    });
+
+    if (this.__hooks) { // If the hooks plugin is enabled
+      // This is necessary because the data coming directly from the
+      // change feeds does not run through `after` hooks by default
+      // so we have to do it manually
+      runHooks = (method, data) => {
+        const service = this;
+        const args = [ { query: {}, provider: 'rethinkdb' } ];
+        const hookData = {
+          app,
+          service,
+          result: data,
+          get path () {
+            return Object.keys(app.services)
+              .find(path => app.services[path] === service);
+          }
+        };
+
+        // Add `data` to arguments
+        if (method === 'create' || method === 'update' || method === 'patch') {
+          args.unshift(data);
+        }
+
+        // `id` for update, patch and remove
+        if (method === 'update' || method === 'patch' || method === 'remove') {
+          args.unshift(data[this.id]);
+        }
+
+        const hookObject = hooks.hookObject(method, 'after', args, hookData);
+        const hookChain = getHooks(app, this, 'after', method);
+
+        return processHooks.call(this, hookChain, hookObject);
+      };
+    }
+
+    this._cursor = this.table.changes().run().then(cursor => {
+      cursor.each((error, data) => {
+        if (error || typeof this.emit !== 'function') {
+          return;
+        }
+        // For each case, run through processHooks first,
+        // then emit the event
+        if (data.old_val === null) {
+          runHooks('create', data.new_val)
+            .then(hook => this.emit('created', hook.result));
+        } else if (data.new_val === null) {
+          runHooks('remove', data.old_val)
+            .then(hook => this.emit('removed', hook.result));
+        } else {
+          runHooks('patch', data.new_val).then(hook => {
+            this.emit('updated', hook.result);
+            this.emit('patched', hook.result);
+          });
+        }
+      });
+
+      return cursor;
+    });
+
+    return this._cursor;
+  }
+
+  setup (app) {
+    this.watchChangefeeds(app);
   }
 }
 

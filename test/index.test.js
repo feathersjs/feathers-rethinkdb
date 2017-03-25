@@ -61,6 +61,12 @@ const app = feathers()
   }).extend(numberService));
 const people = app.service('people');
 
+people.hooks({
+  after (hook) {
+    hook.result.test = 'testing';
+  }
+});
+
 describe('feathers-rethinkdb', () => {
   before(() => {
     return r.dbList().contains('feathers') // create db if not exists
@@ -92,17 +98,9 @@ describe('feathers-rethinkdb', () => {
     expect(typeof 1).to.equal('number');
   });
 
-  it.only('after hooks run and get send with events', done => {
+  it('after hooks run and get send with events', done => {
     const name = 'Hooks tester';
     const service = app.service('people');
-
-    service.hooks({
-      after (hook) {
-        if (hook.params.runHooks) {
-          hook.result.test = 'testing';
-        }
-      }
-    });
 
     service.once('created', person => {
       try {
@@ -124,7 +122,7 @@ describe('feathers-rethinkdb', () => {
     service.create({
       name,
       age: 1
-    }, { runHooks: true }).then(person => service.remove(person.id));
+    }).then(person => service.remove(person.id));
   });
 
   describe('common tests', () => {
