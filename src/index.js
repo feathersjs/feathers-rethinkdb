@@ -272,7 +272,7 @@ class Service {
       // so we have to do it manually
       runHooks = (method, data) => {
         const service = this;
-        const args = [ { query: {}, provider: 'rethinkdb' } ];
+        const args = [ { query: {} } ];
         const hookData = {
           app,
           service,
