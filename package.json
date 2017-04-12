@@ -76,6 +76,6 @@
     "mocha": "^3.0.0",
     "rethinkdbdash": "^2.2.18",
     "rimraf": "^2.5.4",
-    "semistandard": "^9.1.0"
+    "semistandard": "^10.0.0"
   }
 }
