@@ -1,6 +1,8 @@
 feathers-rethinkdb
 ==================
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/feathersjs/feathers-rethinkdb.svg)](https://greenkeeper.io/)
+
 [![Build Status](https://travis-ci.org/feathersjs/feathers-rethinkdb.png?branch=master)](https://travis-ci.org/feathersjs/feathers-rethinkdb)
 [![Code Climate](https://codeclimate.com/github/feathersjs/feathers-rethinkdb/badges/gpa.svg)](https://codeclimate.com/github/feathersjs/feathers-rethinkdb)
 [![Test Coverage](https://codeclimate.com/github/feathersjs/feathers-rethinkdb/badges/coverage.svg)](https://codeclimate.com/github/feathersjs/feathers-rethinkdb/coverage)
