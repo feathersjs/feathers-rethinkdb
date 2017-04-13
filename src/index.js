@@ -220,7 +220,7 @@ class Service {
     let options = Object.assign({ returnChanges: true }, params.rethinkdb);
 
     if (Array.isArray(data) || id === null) {
-      return Promise.reject('Not replacing multiple records. Did you mean `patch`?');
+      return Promise.reject(new errors.BadRequest('Not replacing multiple records. Did you mean `patch`?'));
     }
 
     return this._get(id, params).then(getData => {
