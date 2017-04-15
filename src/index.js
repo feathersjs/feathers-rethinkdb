@@ -159,7 +159,7 @@ class Service {
     return this._get(...args);
   }
 
-  create (data, params) {
+  create (data, params = {}) {
     const idField = this.id;
     return this.table.insert(data, params.rethinkdb).run().then(res => {
       if (data[idField]) {
@@ -187,7 +187,7 @@ class Service {
     }).then(select(params, this.id));
   }
 
-  patch (id, data, params) {
+  patch (id, data, params = {}) {
     let query;
 
     if (id !== null && id !== undefined) {
@@ -216,7 +216,7 @@ class Service {
     }).then(select(params, this.id));
   }
 
-  update (id, data, params) {
+  update (id, data, params = {}) {
     let options = Object.assign({ returnChanges: true }, params.rethinkdb);
 
     if (Array.isArray(data) || id === null) {
@@ -232,7 +232,7 @@ class Service {
     }).then(select(params, this.id));
   }
 
-  remove (id, params) {
+  remove (id, params = {}) {
     let query;
     let options = Object.assign({ returnChanges: true }, params.rethinkdb);
 
