@@ -50,14 +50,14 @@ const app = feathers()
     Model: r,
     name: 'people',
     watch: true,
-    events: [ 'testing' ]
+    events: ['testing']
   }).extend(numberService))
   .use('/people-customid', service({
     id: 'customid',
     Model: r,
     name: 'people_customid',
     watch: true,
-    events: [ 'testing' ]
+    events: ['testing']
   }).extend(numberService));
 const people = app.service('people');
 
@@ -178,7 +178,7 @@ describe('feathers-rethinkdb', () => {
 
   describe('creates', () => {
     it('create works with an array', () => {
-      return people.create([{name: 'Test 1'}, {name: 'Test 2'}])
+      return people.create([{ name: 'Test 1' }, { name: 'Test 2' }])
         .then(data => {
           expect(typeof data[0].id).to.not.equal('undefined');
           expect(typeof data[1].id).to.not.equal('undefined');
@@ -261,7 +261,7 @@ describe('feathers-rethinkdb', () => {
           {
             $or:
             [{ hobby: { $eq: 'archery' } },
-             { hobby: { $eq: 'fishing' } }]
+            { hobby: { $eq: 'fishing' } }]
           }]
         }
       })).then(page => {
@@ -269,19 +269,19 @@ describe('feathers-rethinkdb', () => {
         expect(page[0].name).to.equal('Dave');
         expect(page[1].name).to.equal('Eva');
       })
-      .then(() => people.find({
-        query: {
-          $and:
-          [{
-            age: { $gt: 18 }
-          },
-          { hobby: { $eq: 'fishing' } },
-          { name: { $eq: 'Dave' } }]
-        }
-      })).then(page => {
-        expect(page.length, 1);
-        expect(page[0].name).to.equal('Dave');
-      });
+        .then(() => people.find({
+          query: {
+            $and:
+            [{
+              age: { $gt: 18 }
+            },
+            { hobby: { $eq: 'fishing' } },
+            { name: { $eq: 'Dave' } }]
+          }
+        })).then(page => {
+          expect(page.length, 1);
+          expect(page[0].name).to.equal('Dave');
+        });
     });
   });
 });
@@ -308,5 +308,49 @@ describe('init database', () => {
         expect(r.tableList().contains('testTable'));
         r.table('testTable').delete(null).run();
       });
+  });
+});
+
+describe('find within nested document', () => {
+  it('$search', () => {
+    return people.create([{
+      name: 'Dave',
+      postalAddress: {
+        city: 'Melbourne',
+        country: 'US',
+        state: 'FL',
+        street: '123 6th St',
+        zipcode: '32904'
+      }
+    }, {
+      name: 'Tom',
+      postalAddress: {
+        city: 'Chevy Chase',
+        country: 'US',
+        state: 'MD',
+        street: '71 Pilgrim Avenue',
+        zipcode: '20815'
+      }
+    }, {
+      name: 'Eric',
+      postalAddress: {
+        city: 'Honolulu',
+        country: 'US',
+        state: 'HI',
+        street: '4 Goldfield St',
+        zipcode: '96815'
+      }
+    }]).then(() => people.find({
+      query: { 'postalAddress.state': { $search: '^F' } }
+    })).then(page => {
+      expect(page.length, 1);
+      expect(page[0].postalAddress.state).to.equal('FL');
+    }).then(() => people.find({
+      query: { 'postalAddress.street': { $search: 'St$' } }
+    })).then(page => {
+      expect(page.length, 2);
+      expect(page[0].name).to.equal('Dave');
+      expect(page[1].name).to.equal('Eric');
+    });
   });
 });

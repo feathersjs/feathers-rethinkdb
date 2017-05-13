@@ -37,20 +37,20 @@ export function createFilter (query, r) {
     _.each(query, (value, field) => {
       if (typeof value !== 'object') {
         // Match value directly
-        matcher = matcher.and(doc(field).eq(value));
+        matcher = matcher.and(buildNestedQueryPredicate(field, doc).eq(value));
       } else {
         // Handle special parameters
         _.each(value, (selector, type) => {
           if (type === '$in') {
-            matcher = matcher.and(r.expr(selector).contains(doc(field)));
+            matcher = matcher.and(r.expr(selector).contains(buildNestedQueryPredicate(field, doc)));
           } else if (type === '$nin') {
             matcher = matcher.and(
-              r.expr(selector).contains(doc(field)).not()
+              r.expr(selector).contains(buildNestedQueryPredicate(field, doc)).not()
             );
           } else if (mappings[type]) {
             const method = mappings[type];
 
-            matcher = matcher.and(doc(field)[method](selector));
+            matcher = matcher.and(buildNestedQueryPredicate(field, doc)[method](selector));
           }
         });
       }
@@ -58,4 +58,15 @@ export function createFilter (query, r) {
 
     return matcher;
   };
+}
+
+function buildNestedQueryPredicate (field, doc) {
+  var fields = field.split('.');
+  var searchFunction = doc(fields[0]);
+
+  for (var i = 1; i < fields.length; i++) {
+    searchFunction = searchFunction(fields[i]);
+  }
+
+  return searchFunction;
 }
