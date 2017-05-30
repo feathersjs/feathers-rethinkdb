@@ -224,7 +224,7 @@ class Service {
     }
 
     return this._get(id, params).then(getData => {
-      data[this.id] = id;
+      getData[this.id] = id;
       return this.table.get(getData[this.id])
         .replace(data, options).run().then(result =>
           (result.changes && result.changes.length) ? result.changes[0].new_val : data
