@@ -1,9 +1,8 @@
 const chai = require('chai');
 const { base } = require('feathers-service-tests');
 
-const feathers = require('feathers');
-const errors = require('feathers-errors');
-const hooks = require('feathers-hooks');
+const feathers = require('@feathersjs/feathers');
+const errors = require('@feathersjs/errors');
 const rethink = require('rethinkdbdash');
 const service = require('../lib');
 
@@ -45,7 +44,6 @@ const numberService = {
 };
 
 const app = feathers()
-  .configure(hooks())
   .use('/people', service({
     Model: r,
     name: 'people',
