@@ -1,11 +1,11 @@
-import chai from 'chai';
-import { base, example } from 'feathers-service-tests';
-import feathers from 'feathers';
-import errors from 'feathers-errors';
-import hooks from 'feathers-hooks';
+const chai = require('chai');
+const { base } = require('feathers-service-tests');
 
-import rethink from 'rethinkdbdash';
-import service from '../src';
+const feathers = require('feathers');
+const errors = require('feathers-errors');
+const hooks = require('feathers-hooks');
+const rethink = require('rethinkdbdash');
+const service = require('../lib');
 
 const r = rethink({
   db: 'feathers'
@@ -284,20 +284,6 @@ describe('feathers-rethinkdb', () => {
         });
     });
   });
-});
-
-describe('RethinkDB service example test', () => {
-  let server;
-
-  before(() => {
-    return (server = require('../example/app'));
-  });
-
-  after(() => server.then(s =>
-    r.table('todos').delete(null).then(() => s.close())
-  ));
-
-  example('id');
 });
 
 describe('init database', () => {
