@@ -214,7 +214,7 @@ app.service('mesages').hooks({
 });
 ```
 
-If you need even more control then you can use `params.table` directly. This way you can create a query from scratch without the the [common filter criteria](https://docs.feathersjs.com/api/databases/querying.html) applied. The following example adds a `getNearest` condition for [RethinkDB geospatial queries](https://www.rethinkdb.com/docs/geo-support/javascript/).
+If you need even more control then you can use `service.table` (`context.service.table` in a hook) directly. This way you can create a query from scratch without the the [common filter criteria](https://docs.feathersjs.com/api/databases/querying.html) applied. The following example adds a `getNearest` condition for [RethinkDB geospatial queries](https://www.rethinkdb.com/docs/geo-support/javascript/).
 
 ```js
 app.service('mesages').hooks({
