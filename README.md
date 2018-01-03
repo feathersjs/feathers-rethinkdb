@@ -196,24 +196,40 @@ GET /messages?tags[$contains]=nodejs
 
 In a `find` call, `params.rethinkdb` can be passed a RethinkDB query (without pagination) to customize the find results.
 
-Combined with `.createQuery(query)`, which returns a new RethinkDB query with the [common filter criteria](https://docs.feathersjs.com/api/databases/querying.html) applied, this can be used to create more complex queries. The best way to customize the query is in a [before hook](https://docs.feathersjs.com/api/hooks.html) for `find`. The following example adds a `getNearest` condition for [RethinkDB geospatial queries](https://www.rethinkdb.com/docs/geo-support/javascript/).
+Combined with `.createQuery(query)`, which returns a new RethinkDB query with the [common filter criteria](https://docs.feathersjs.com/api/databases/querying.html) applied, this can be used to create more complex queries. The best way to customize the query is in a [before hook](https://docs.feathersjs.com/api/hooks.html) for `find`. The following example adds a `coerceTo`condition from [RethinkDB coerceTo API](https://www.rethinkdb.com/api/javascript/#coerce_to) to match by any string inside an object.
 
 ```js
 app.service('mesages').hooks({
   before: {
     find(context) {
       const query = this.createQuery(context.params.query);
-      const r = this.options.r;
-
-      const point = r.point(-122.422876, 37.777128);  // San Francisco
-
-      // Update the query with an additional `getNearest` condition
-      context.params.rethinkdb = query.getNearest(point, { index: 'location' });
+      
+      const searchString = "my search string";
+      
+      hook.params.rethinkdb = query.filter(function(doc) {
+        return doc.coerceTo('string').match('(?i)' + searchString);
+      })
     }
   }
 });
 ```
 
+If you need even more control then you can use `params.table` directly. This way you can create a query from scratch without the the [common filter criteria](https://docs.feathersjs.com/api/databases/querying.html) applied. The following example adds a `getNearest` condition for [RethinkDB geospatial queries](https://www.rethinkdb.com/docs/geo-support/javascript/).
+
+```js
+app.service('mesages').hooks({
+  before: {
+    find(context) {
+      const r = this.options.r;
+
+      const point = r.point(-122.422876, 37.777128);  // San Francisco
+
+      // Replace the query with a custom query
+      context.params.rethinkdb = context.service.table.getNearest(point, { index: 'location' });
+    }
+  }
+});
+```
 
 ## Changefeeds
 
