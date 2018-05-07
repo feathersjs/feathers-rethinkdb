@@ -191,6 +191,57 @@ app.service('messages').find({
 GET /messages?tags[$contains]=nodejs
 ```
 
+### Nested Queries
+
+Matches if the document contains a nested property that fits the query
+
+Given the following document structure
+```js
+app.service('people').create([{
+    name: 'Dave',
+    postalAddress: {
+      city: 'Melbourne',
+      country: 'US',
+      state: 'FL',
+      street: '123 6th St',
+      zipcode: '32904'
+    }
+  }, {
+    name: 'Tom',
+    postalAddress: {
+      city: 'Chevy Chase',
+      country: 'US',
+      state: 'MD',
+      street: '71 Pilgrim Avenue',
+      zipcode: '20815'
+    }
+  }, {
+    name: 'Eric',
+    postalAddress: {
+      city: 'Honolulu',
+      country: 'US',
+      state: 'HI',
+      street: '4 Goldfield St',
+      zipcode: '96815'
+    }
+  }])
+```
+
+```js
+// Find all people with postalAddress.state that starts with `F`
+app.service('people').find({
+  query: {
+    'postalAddress.state': {
+      $search: '^F'
+      }
+    }
+  }
+});
+```
+
+```
+GET /people?postalAddress.state[$search]=^F
+```
 
 ## Customizing the query
 
