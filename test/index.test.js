@@ -229,6 +229,11 @@ describe('feathers-rethinkdb', () => {
         expect(page.length, 1);
         expect(page[0].name).to.equal('David');
       }).then(() => people.find({
+        query: { nickNames: { $contains: [ 'Dave', 'David' ] } }
+      })).then(page => {
+        expect(page.length, 1);
+        expect(page[0].name).to.equal('David');
+      }).then(() => people.find({
         query: { nickNames: { $contains: 'Feathers guy' } }
       })).then(page => {
         expect(page.length, 2);
@@ -259,7 +264,7 @@ describe('feathers-rethinkdb', () => {
           {
             $or:
             [{ hobby: { $eq: 'archery' } },
-            { hobby: { $eq: 'fishing' } }]
+              { hobby: { $eq: 'fishing' } }]
           }]
         }
       })).then(page => {
