@@ -15,33 +15,6 @@ const r = rethink({
 let counter = 0;
 
 const expect = chai.expect;
-const numberService = {
-  _find (params) {
-    params = params || {};
-    params.query = params.query || {};
-    if (!params.query.$sort) {
-      params.query.$sort = {
-        counter: 1
-      };
-    }
-
-    return this._super(params);
-  },
-
-  create (data, params) {
-    const addCount = current => Object.assign({}, current, {
-      counter: ++counter
-    });
-
-    if (Array.isArray(data)) {
-      data = data.map(addCount);
-    } else {
-      data = addCount(data);
-    }
-
-    return this._super(data, params);
-  }
-};
 
 const app = feathers()
   .use('/people', service({
@@ -49,19 +22,19 @@ const app = feathers()
     name: 'people',
     watch: true,
     events: ['testing']
-  }).extend(numberService))
+  }))
   .use('/people-customid', service({
     id: 'customid',
     Model: r,
     name: 'people_customid',
     watch: true,
     events: ['testing']
-  }).extend(numberService));
+  }));
 const people = app.service('people');
 
 people.hooks({
   after (hook) {
-    hook.result.test = 'testing';
+    if (hook.result) { hook.result.test = 'testing'; }
   }
 });
 
@@ -120,7 +93,9 @@ describe('feathers-rethinkdb', () => {
     service.create({
       name,
       age: 1
-    }).then(person => service.remove(person.id));
+    }).then(person => {
+      service.remove(person.id);
+    });
   });
 
   describe('common tests', () => {
@@ -133,6 +108,7 @@ describe('feathers-rethinkdb', () => {
       const table = r.db('feathers').table('people');
 
       people.once('created', person => {
+        console.log('person: ' + person);
         expect(person.name).to.equal('Marshall Thompson');
         expect(person.counter).to.equal(counter);
         table.get(person.id).delete().run();
