@@ -229,7 +229,7 @@ describe('feathers-rethinkdb', () => {
         expect(page.length, 1);
         expect(page[0].name).to.equal('David');
       }).then(() => people.find({
-        query: { nickNames: { $contains: [ 'Dave', 'David' ] } }
+        query: { nickNames: { $contains: ['Dave', 'David'] } }
       })).then(page => {
         expect(page.length, 1);
         expect(page[0].name).to.equal('David');
