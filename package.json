@@ -33,9 +33,13 @@
     "release:minor": "npm version minor && npm publish",
     "release:major": "npm version major && npm publish",
     "lint": "semistandard --fix",
-    "mocha": "mocha --opts mocha.opts",
-    "coverage": "istanbul cover node_modules/mocha/bin/_mocha -- --opts mocha.opts",
+    "mocha": "mocha",
+    "coverage": "nyc npm run mocha",
     "test": "npm run lint && npm run coverage"
+  },
+  "mocha": {
+    "recursive": "test/",
+    "exit": true
   },
   "semistandard": {
     "env": [
@@ -46,11 +50,11 @@
     "lib": "lib"
   },
   "dependencies": {
+    "@feathersjs/adapter-commons": "latest",
     "@feathersjs/commons": "^4.5.2",
     "@feathersjs/errors": "^4.5.2",
     "debug": "^4.1.1",
-    "uberproto": "^2.0.6",
-    "@feathersjs/adapter-commons": "latest"
+    "uberproto": "^2.0.6"
   },
   "devDependencies": {
     "@feathersjs/express": "^4.5.2",
@@ -59,9 +63,9 @@
     "body-parser": "^1.19.0",
     "chai": "^4.2.0",
     "feathers-service-tests": "^0.10.2",
-    "istanbul": "^1.1.0-alpha.1",
     "mocha": "^7.1.0",
-    "rethinkdbdash": "^2.3.31",
+    "nyc": "^15.0.0",
+    "rethinkdb-ts": "^2.4.2",
     "semistandard": "^14.2.0"
   }
 }
