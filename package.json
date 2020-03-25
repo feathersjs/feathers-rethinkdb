@@ -1,7 +1,7 @@
 {
   "name": "feathers-rethinkdb",
   "description": "A RethinkDB Service for FeathersJS",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "homepage": "https://github.com/feathersjs-ecosystem/feathers-rethinkdb",
   "main": "lib/",
   "keywords": [
