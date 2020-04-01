@@ -1,17 +1,18 @@
 # feathers-rethinkdb
 
-> __Unmaintained:__ This project is no longer maintained
+<!-- > __Unmaintained:__ This project is no longer maintained
 
 [![Greenkeeper badge](https://badges.greenkeeper.io/feathersjs-ecosystem/feathers-rethinkdb.svg)](https://greenkeeper.io/)
 
 [![Build Status](https://travis-ci.org/feathersjs-ecosystem/feathers-rethinkdb.png?branch=master)](https://travis-ci.org/feathersjs-ecosystem/feathers-rethinkdb)
 [![Dependency Status](https://img.shields.io/david/feathersjs-ecosystem/feathers-rethinkdb.svg?style=flat-square)](https://david-dm.org/feathersjs-ecosystem/feathers-rethinkdb)
 [![Download Status](https://img.shields.io/npm/dm/feathers-rethinkdb.svg?style=flat-square)](https://www.npmjs.com/package/feathers-rethinkdb)
+-->
 
 [feathers-rethinkdb](https://github.com/feathersjs-ecosystem/feathers-rethinkdb) is a database adapter for [RethinkDB](https://rethinkdb.com), a real-time database.
 
 ```bash
-$ npm install --save rethinkdbdash feathers-rethinkdb
+$ npm install --save rethinkdb-ts feathers-rethinkdb
 ```
 
 > __Important:__ `feathers-rethinkdb` implements the [Feathers Common database adapter API](https://docs.feathersjs.com/api/databases/common.html) and [querying syntax](https://docs.feathersjs.com/api/databases/querying.html).
@@ -22,17 +23,17 @@ $ npm install --save rethinkdbdash feathers-rethinkdb
 
 ### `service(options)`
 
-Returns a new service instance initialized with the given options. For more information on initializing the driver see the [RethinkDBdash documentation](https://github.com/neumino/rethinkdbdash).
+Returns a new service instance initialized with the given options. For more information on initializing the driver see the [rethinkdb-ts documentation](https://github.com/rethinkdb/rethinkdb-ts).
 
 ```js
-const r = require('rethinkdbdash')({
+const r = require('rethinkdb-ts')({
   db: 'feathers'
 });
 const service = require('feathers-rethinkdb');
 
 app.use('/messages', service({
   Model: r,
-  db: 'someotherdb', //must be on the same connection as rethinkdbdash
+  db: 'someotherdb', //only needed if other db, must be on the same connection as rethinkdbdash
   name: 'messages',
   // Enable pagination
   paginate: {
@@ -292,6 +293,6 @@ Since the service already sends real-time events for all changes the recommended
 
 ## License
 
-Copyright (c) 2017
+Copyright (c) 2017-2020
 
 Licensed under the [MIT license](LICENSE).
